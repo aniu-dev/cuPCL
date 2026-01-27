@@ -79,7 +79,7 @@
 ### 编译步骤
 ```bash
 # 克隆仓库
-git clone https://github.com/YourName/cuPCL.git
+git clone https://github.com/aniu-dev/cuPCL.git
 cd cuPCL
 
 # 编译
