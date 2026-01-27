@@ -9,6 +9,26 @@
 - **极致加速比**: ICP 算法加速 **750x+**，OBB 包围盒计算加速 **42,000x+**。
 
 ---
+## 💎 与 PCL 严格一致的接口声明 (API Consistency)
+
+cuPCL 采用了与 PCL 官方完全一致的类封装模式。开发者只需更改命名空间，即可将现有的 PCL 流程迁移至 GPU 加速版本，实现“零成本”替换。
+
+### 代码对比示例 (Euclidean Clustering)
+
+**原生 PCL (CPU):**
+- pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
+- ec.setInputCloud(cloud);
+- ec.setClusterTolerance(0.02);
+- ec.setMinClusterSize(100);
+- ec.extract(cluster_indices); // 耗时：数分钟 (针对10M点)
+
+**GPU 加速:**
+// 接口、方法名、参数完全对齐
+- pcl::cuda::EuclideanClusterExtraction<pcl::PointXYZ> ec; 
+- ec.setInputCloud(cloud);
+- ec.setClusterTolerance(0.02);
+- ec.setMinClusterSize(100);
+- ec.extract(cluster_indices); // 耗时：约 6 秒 (针对10M点)
 
 ## 💻 硬件测试环境 (Hardware Specs)
 
@@ -89,7 +109,7 @@ make -j8
 ---
 
 
-##📝 免责声明
+## 📝 免责声明
 cuPCL 是个人独立开发的开源项目，不包含任何商业公司保密代码。所有加速比数据均有完整的 Benchmark 代码可复现。
 
 
