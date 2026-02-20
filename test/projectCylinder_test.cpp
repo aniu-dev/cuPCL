@@ -22,7 +22,7 @@
 #include <pcl/sample_consensus/model_types.h> 
 #include <pcl/filters/voxel_grid.h>
 #include <cuda_runtime.h>
-#include "../test.h"
+#include "../include/pcl_cuda/test.h"
 using namespace std;
 
 

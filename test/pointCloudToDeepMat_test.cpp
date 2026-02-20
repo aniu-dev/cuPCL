@@ -23,7 +23,7 @@
 #include <execution> 
 #include <cuda_runtime.h>
 #include <opencv2/opencv.hpp>
-#include "../test.h"
+#include "../include/pcl_cuda/test.h"
 using namespace std;
 
 

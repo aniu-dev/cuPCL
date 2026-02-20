@@ -23,7 +23,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/features/moment_of_inertia_estimation.h>
 #include <cuda_runtime.h>
-#include "../test.h"
+#include "../include/pcl_cuda/test.h"
 using namespace std;
 
 

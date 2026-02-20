@@ -22,7 +22,7 @@
 #include <pcl/sample_consensus/model_types.h> // 必须加这个！否则 SACMODEL_PLANE 报错
 #include <pcl/filters/voxel_grid.h>
 #include <cuda_runtime.h>
-#include "../test.h"
+#include "../include/pcl_cuda/test.h"
 using namespace std;
 
 
