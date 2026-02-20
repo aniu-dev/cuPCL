@@ -120,6 +120,7 @@ Implements **Warp-level & Shared Memory pre-merging** to resolve atomic contenti
 ### 4. Memory Layout Optimization (SoA) / 内存布局优化 (SoA)
 The entire library adopts a **SoA (Structure of Arrays)** memory layout to ensure GPU **Memory Coalescing**, maximizing the memory bandwidth utilization of the RTX 5070 Ti.
 全库采用 **SoA (Structure of Arrays)** 内存布局，确保了 GPU 显存访问的合并（Memory Coalescing），最大化利用了 RTX 5070 Ti 的显存带宽。
+
 ---
 
 ## 🛠 算子路线图 (Algorithm Checklist)
