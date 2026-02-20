@@ -1,39 +1,45 @@
+# cuPCL: Industrial-Grade High-Performance CUDA Point Cloud Library
 # cuPCL: 超大规模 CUDA 加速点云算法库
 
 
+**cuPCL** is a high-performance CUDA operator library designed for real-time perception and massive point cloud processing (up to 100M+ points). It is not just a GPU port of PCL, but a re-engineered acceleration engine optimized for parallel architectures.
 **cuPCL** 是一款专为实时感知和亿级点云处理设计的高性能 CUDA 算子库。它不仅是 PCL (Point Cloud Library) 的 GPU 移植版，更是针对并行架构深度重构的加速引擎。
 
-### 🌟 核心突破
-- **亿级点云支撑**: 在 **12GB** 显存限制下，完美支持 **1 亿（100M）** 级别点云的全流程处理（过滤、特征计算、配准）。
-- **精度鲁棒性**: 修正了原生 PCL 在处理千万级以上数据时因浮点数累加导致的 **数值溢出与结果出错** 问题。
-- **极致加速比**: 200万点云，ICP 算法加速 **9400x+**，OBB 包围盒计算加速 **19800x+**。
+
+## 🌟 Key Breakthroughs / 核心突破
+
+*   **Massive Data Support (100M+)**: Successfully processes up to **100 Million** points within a **12GB** VRAM limit, covering the full pipeline (filtering, feature estimation, registration).
+    *   **亿级点云支撑**: 在 **12GB** 显存限制下，完美支持 **1 亿（100M）** 级别点云的全流程处理（过滤、特征计算、配准）。
+*   **Numerical Robustness**: Fixes **numerical overflow and precision errors** found in native PCL when processing datasets exceeding 10M points.
+    *   **精度鲁棒性**: 修正了原生 PCL 在处理千万级以上数据时因浮点数累加导致的 **数值溢出与结果出错** 问题。
+*   **Extreme Speedup**: Achieve up to **9400x+** for ICP and **19800x+** for OBB calculation (2M points).
+    *   **极致加速比**: 200万点云，ICP 算法加速 **9400x+**，OBB 包围盒计算加速 **19800x+**。
 
 ---
-## 💎 与 PCL 严格一致的接口声明 (API Consistency)
 
+## 💎 API Consistency / 与 PCL 严格一致的接口声明
+
+cuPCL follows PCL's class encapsulation logic. Developers can migrate existing PCL pipelines to GPU with "zero-cost" by simply changing the namespace.
 cuPCL 采用了与 PCL 官方完全一致的类封装模式。开发者只需更改命名空间，即可将现有的 PCL 流程迁移至 GPU 加速版本，实现“零成本”替换。
 
-### 代码对比示例 (Euclidean Clustering)
+### Code Comparison (Euclidean Clustering)
 
-**原生 PCL (CPU):**
+** PCL (CPU):**
 - pcl::EuclideanClusterExtraction<pcl::PointXYZ> ec;
 - ec.setInputCloud(cloud);
 - ec.setClusterTolerance(0.02);
 - ec.setMinClusterSize(100);
-- ec.extract(cluster_indices); // 耗时：数分钟 (针对10M点)
+- ec.extract(cluster_indices); 
 
-**GPU 加速:**
-// 接口、方法名、参数完全对齐
+** cuPCL(GPU) :**
 - pcl::cuda::EuclideanClusterExtraction ec; 
 - ec.setInputCloud(cloud);
 - ec.setClusterTolerance(0.02);
 - ec.setMinClusterSize(100);
-- ec.extract(cluster_indices); // 耗时：约 6 秒 (针对10M点)
+- ec.extract(cluster_indices); 
 
 ## 💻 硬件测试环境 (Hardware Specs)
-
 项目针对最新的移动端高性能架构进行了深度优化：
-
 - **GPU**: NVIDIA GeForce **RTX 5070 Ti Laptop** (12GB GDDR6 VRAM / Blackwell Architecture)
 - **CPU**: Intel Core **i9-14900HX** (24 Cores / 32 Threads, up to 5.8 GHz)
 - **内存**: 32GB DDR5 5600MHz
@@ -42,7 +48,7 @@ cuPCL 采用了与 PCL 官方完全一致的类封装模式。开发者只需更
 ---
 
 ## 📊 性能对标 (Benchmark)
-
+**Test Environment:** NVIDIA RTX 5070 Ti Laptop (12GB) | Intel i9-14900HX | CUDA 12.6
 以下数据基于 **RTX 5070 Ti** 与 **PCL 1.14 (CPU单核)** 的对比测试。
 
 | 算法名称 (Function) | 数据规模 (million) | PCL (CPU) / ms | cuPCL (GPU) / ms | 加速比 (Speedup) | 结果对比 | 备注 |
@@ -97,23 +103,23 @@ cuPCL 采用了与 PCL 官方完全一致的类封装模式。开发者只需更
 
 ## 🛠 关键技术栈 (Technical Implementation)
 
-### 1. 线性索引结构 (Linear BVH)
-放弃了传统的递归 Kd-Tree，采用自研的 **LBVH**。利用 Morton 码进行基数排序，将空间邻域查询转换为高效的线性扫描，构建速度比 PCL 快 100 倍以上。
+### 1. Linear BVH (LBVH) / 线性索引结构
+Replaced recursive Kd-Trees with a custom **LBVH**. Utilizing Morton encoding and Radix Sort to convert spatial queries into linear scans, achieving 100x faster construction than PCL.
+放弃传统递归 Kd-Tree，采用自研 **LBVH**。利用 Morton 码进行基数排序，将空间查询转换为高效线性扫描，构建速度比 PCL 快 100 倍以上。
 
-### 2. RANSAC V3 两阶段拟合引擎 (Two-stage Fitting Engine)
-针对大规模点云中的几何拟合，V3 架构彻底摒弃了传统暴力评估逻辑，采用了创新的“两阶段评估流水线”，在保证工业级精度的同时，将计算开销降低了 90% 以上。
+### 2. RANSAC V3 Engine / 两阶段拟合引擎
+A novel two-stage pipeline that reduces computation by 90% while maintaining industrial precision.
+创新的“两阶段评估流水线”，在保证工业级精度的同时，将计算开销降低了 90% 以上。
+*   **Stage 1 (Coarse)**: Evaluate 1/50 subset to prune 98% of the search space.
+*   **Stage 2 (Refinement)**: Locked-in top 16 candidates for global refinement on 100M points.
 
-*   **第一阶段：子集粗筛 (Coarse Filtering)**
-    提取原始点云 1/50 的特征子集进行初步拟合，利用高吞吐量的计算核心并行评估所有候选模型。该阶段将模型搜索空间的原始计算量直接压缩至 2%，极大缓解了访存压力。
-*   **第二阶段：全局精调 (Global Refinement)**
-    基于初筛评分结果，锁定前 16 组最优候选参数，并在全局亿级点云规模下进行最终的内点（Inliers）统计与精调。
+### 3. Parallel Union-Find / 并查集并行合并
+Implements **Warp-level & Shared Memory pre-merging** to resolve atomic contention, compressing 10M-point clustering from minutes to seconds.
+采用 **Warp级与共享内存局部预合并** 技术，解决了高并发下的原子冲突，将千万级聚类耗时压缩至秒级。
 
-### 3. 并查集 (Union-Find) 异步合并
-在欧式聚类中，针对全局原子操作冲突问题，基于LBVH树排序后的空间相近的点索引也接近的原理，采用了**warp级和Shared Memory 局部预合并** 与 **原子操作重排** 技术，将千万级点的聚类时间从分钟级压缩至秒级。
-
-### 4. 内存布局优化 (SoA)
+### 4. Memory Layout Optimization (SoA) / 内存布局优化 (SoA)
+The entire library adopts a **SoA (Structure of Arrays)** memory layout to ensure GPU **Memory Coalescing**, maximizing the memory bandwidth utilization of the RTX 5070 Ti.
 全库采用 **SoA (Structure of Arrays)** 内存布局，确保了 GPU 显存访问的合并（Memory Coalescing），最大化利用了 RTX 5070 Ti 的显存带宽。
-
 ---
 
 ## 🛠 算子路线图 (Algorithm Checklist)
@@ -131,7 +137,7 @@ cuPCL 采用了与 PCL 官方完全一致的类封装模式。开发者只需更
 
 ## 📦 构建说明 (Build)
 
-### 环境要求
+### Environment(环境要求)
 - **CMake**: 3.18+
 - **CUDA**: 12.x
 - **PCL**: 1.14+ (仅用于验证结果与 IO)
@@ -153,8 +159,6 @@ make -j8
 
 ## 📝 免责声明 (Disclaimer)
 
-> **注意**：cuPCL 是作者个人独立开发的开源项目，其底层架构与核心算法逻辑完全基于个人技术预研，**不包含任何原单位或现任公司的商业保密代码**。
-> 
-> 本项目所提供的所有加速比数据（19000x+ 等）均基于公开的 Benchmark 测试脚本得出，并在特定硬件环境下（RTX 5070 Ti）**完全可复现**。
-
+EN: cuPCL is an independently developed open-source project. Its architecture and core logic are based on personal technical research and do not contain any confidential code from current or former employers. Benchmarks are fully reproducible on specified hardware.
+CN: cuPCL 是个人独立开发的开源项目，底层架构与核心算法完全基于个人技术预研，不包含任何原单位或现任公司的商业保密代码。加速比数据在指定硬件环境下完全可复现。
 
